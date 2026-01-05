@@ -38,7 +38,7 @@ const GlobalStyles = () => (
   <style>
     {`
       @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap');
-      body { font-family: 'Rubik', sans-serif; background-color: #000; color: #e5e7eb; overscroll-behavior-y: none; }
+      body { font-family: 'Rubik', sans-serif; background-color: #000; color: #e5e7eb; overscroll-behavior-y: none; overflow-x: hidden; }
       .glass-panel {
         background: rgba(30, 30, 30, 0.85);
         backdrop-filter: blur(16px);
@@ -873,7 +873,7 @@ export default function App() {
             </div>
           </div>
           {/* Made font slightly bolder (font-medium) */}
-          <div className="text-gray-100">{isChecklistMode ? <ChecklistView content={recipe.content} /> : <div className="whitespace-pre-wrap text-base md:text-xl leading-relaxed font-medium tracking-wide"><TextWithLinks text={recipe.content} /></div>}</div>
+          <div className="text-gray-100">{isChecklistMode ? <ChecklistView content={recipe.content} /> : <div className="whitespace-pre-wrap text-base md:text-xl leading-relaxed font-medium tracking-wide break-words"><TextWithLinks text={recipe.content} /></div>}</div>
         </div>
       </div>
     );
@@ -889,21 +889,21 @@ export default function App() {
         <div className="text-center mt-20 flex flex-col items-center px-4"><div className="mb-8 p-8 bg-[#151515] rounded-[2rem] border border-white/5 shadow-inner relative overflow-hidden group"><Sparkles size={48} className="text-gray-600 group-hover:text-rose-400 transition-colors" strokeWidth={1.5} /></div><p className="text-xl md:text-2xl font-bold text-white mb-2">לא נמצאו מתכונים</p><p className="text-gray-500 text-sm md:text-base">זה הזמן ליצור משהו טעים!</p></div>
       ) : (
         filteredRecipes.map(recipe => (
-          <div key={recipe.id} onClick={() => viewRecipe(recipe)} className="group relative bg-[#121212] hover:bg-[#1a1a1a] p-5 md:p-6 rounded-[1.8rem] md:rounded-[2rem] border border-white/5 hover:border-rose-500/30 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-rose-900/10 hover:-translate-y-1 active:scale-[0.99]">
+          <div key={recipe.id} onClick={() => viewRecipe(recipe)} className="group relative bg-[#121212] hover:bg-[#1a1a1a] p-5 md:p-6 rounded-[1.8rem] md:rounded-[2rem] border border-white/5 hover:border-rose-500/30 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-rose-900/10 hover:-translate-y-1 active:scale-[0.99] overflow-hidden">
             <div className="absolute top-0 right-8 left-8 h-[1px] bg-gradient-to-r from-transparent via-rose-500 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="flex justify-between items-start gap-4">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0 w-full">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                     {normalizeCategories(recipe).slice(0, 2).map((c, i) => (
                         <span key={i} className="text-[10px] md:text-xs font-bold text-rose-500/80 uppercase tracking-wide bg-rose-500/10 px-2 py-0.5 rounded-md">{c}</span>
                     ))}
                     {normalizeCategories(recipe).length > 2 && <span className="text-[10px] text-gray-600">+{normalizeCategories(recipe).length - 2}</span>}
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-1 group-hover:text-rose-400 transition-colors leading-tight">{recipe.title}</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-1 group-hover:text-rose-400 transition-colors leading-tight break-words whitespace-normal">{recipe.title}</h3>
                 {recipe.chef && <div className="text-gray-500 text-sm mb-2 flex items-center gap-1"><User size={12} /> {recipe.chef}</div>}
-                <p className="text-gray-400 line-clamp-2 text-sm md:text-base leading-relaxed pl-2 md:pl-4 opacity-70 group-hover:opacity-100 transition-opacity font-medium">{recipe.content}</p>
+                <p className="text-gray-400 line-clamp-2 text-sm md:text-base leading-relaxed pl-2 md:pl-4 opacity-70 group-hover:opacity-100 transition-opacity font-medium break-words whitespace-normal">{recipe.content}</p>
               </div>
-              <div className="mt-1 text-gray-700 group-hover:text-rose-500/50 transition-colors p-2 bg-white/5 rounded-full group-hover:bg-white/10"><ArrowRight className="transform rotate-180" size={18} /></div>
+              <div className="mt-1 text-gray-700 group-hover:text-rose-500/50 transition-colors p-2 bg-white/5 rounded-full group-hover:bg-white/10 shrink-0"><ArrowRight className="transform rotate-180" size={18} /></div>
             </div>
           </div>
         ))
@@ -935,4 +935,3 @@ export default function App() {
     </div>
   );
 }
-
