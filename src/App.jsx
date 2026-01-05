@@ -873,19 +873,21 @@ export default function App() {
       <div className="max-w-3xl mx-auto p-3 md:p-4 animate-in fade-in zoom-in-95 duration-500 pb-24">
         <div className="fixed top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-rose-500/20 rounded-full blur-[100px] pointer-events-none z-0"></div>
         <div className="relative z-10 bg-black rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border border-white/10 shadow-2xl min-h-[60vh]">
-          <div className="flex flex-col gap-2 mb-6 border-b border-white/10 pb-6">
-             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-2xl md:text-4xl font-black text-white leading-tight tracking-tight">{recipe.title}</h2>
-                    {recipe.chef && <div className="text-gray-500 flex items-center gap-2 mt-2"><User size={16} /><span className="text-lg">{recipe.chef}</span></div>}
+          <div className="flex flex-col gap-4 mb-6 border-b border-white/10 pb-6">
+             {/* Title and Chef Section */}
+             <div>
+                <h2 className="text-2xl md:text-4xl font-black text-white leading-tight tracking-tight">{recipe.title}</h2>
+                {recipe.chef && <div className="text-gray-500 flex items-center gap-2 mt-2"><User size={16} /><span className="text-lg">{recipe.chef}</span></div>}
+             </div>
+
+             {/* Categories and Actions Row */}
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-wrap gap-2 order-2 sm:order-1">
+                    {normalizeCategories(recipe).map((c, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 text-rose-400 text-xs md:text-sm font-medium"><Tag size={12} /> {c}</span>
+                    ))}
                 </div>
-                {/* Fixed checklist button width for mobile */}
-                <button onClick={() => setIsChecklistMode(!isChecklistMode)} className={`w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${isChecklistMode ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent'}`}><ListChecks size={20} />{isChecklistMode ? 'מצב קריאה' : 'מצב צ\'ק-ליסט'}</button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
-                {normalizeCategories(recipe).map((c, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 text-rose-400 text-xs md:text-sm font-medium"><Tag size={12} /> {c}</span>
-                ))}
+                <button onClick={() => setIsChecklistMode(!isChecklistMode)} className={`order-1 sm:order-2 w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${isChecklistMode ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent'}`}><ListChecks size={20} />{isChecklistMode ? 'מצב קריאה' : 'מצב צ\'ק-ליסט'}</button>
             </div>
           </div>
           {/* Made font slightly bolder (font-medium) */}
