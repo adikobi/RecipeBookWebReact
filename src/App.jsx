@@ -881,13 +881,13 @@ export default function App() {
              </div>
 
              {/* Categories and Actions Row */}
-             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex flex-wrap gap-2 order-2 sm:order-1">
+             <div className="flex flex-wrap justify-between items-center gap-4">
+                <div className="flex flex-wrap gap-2">
                     {normalizeCategories(recipe).map((c, i) => (
                         <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 text-rose-400 text-xs md:text-sm font-medium"><Tag size={12} /> {c}</span>
                     ))}
                 </div>
-                <button onClick={() => setIsChecklistMode(!isChecklistMode)} className={`order-1 sm:order-2 w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${isChecklistMode ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent'}`}><ListChecks size={20} />{isChecklistMode ? 'מצב קריאה' : 'מצב צ\'ק-ליסט'}</button>
+                <button onClick={() => setIsChecklistMode(!isChecklistMode)} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${isChecklistMode ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent'}`}><ListChecks size={20} />{isChecklistMode ? 'מצב קריאה' : 'מצב צ\'ק-ליסט'}</button>
             </div>
           </div>
           {/* Made font slightly bolder (font-medium) */}
