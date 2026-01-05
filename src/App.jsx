@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { Plus, Search, ArrowRight, ArrowUp, ArrowDown, Edit2, Trash2, Save, ChefHat, X, Sparkles, CheckCircle2, Circle, ListChecks, AlertCircle, Lock, KeyRound, Settings, Download, Upload, FileText, Share, Mail, Tag, ShieldCheck, Database, RefreshCw, Cloud, CloudRain, User, LogOut } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc, getDoc, onSnapshot, query } from 'firebase/firestore';
@@ -501,6 +501,7 @@ export default function App() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
   const [loading, setLoading] = useState(false);
   const [allCategories, setAllCategories] = useState([...DEFAULT_CATEGORIES]);
+  const scrollPosRef = useRef(0);
 
   // --- Auto-Login Check ---
   useEffect(() => {
@@ -568,6 +569,14 @@ export default function App() {
       }, (error) => { console.error("Error fetching recipes:", error); showToast("שגיאה בטעינת נתונים", "error"); setLoading(false); });
       return () => unsubscribe();
   }, [isAuthenticated, dbId]);
+
+  useLayoutEffect(() => {
+      if (view === 'list') {
+          window.scrollTo(0, scrollPosRef.current);
+      } else {
+          window.scrollTo(0, 0);
+      }
+  }, [view]);
 
   const handleLogin = (id, mode, isAuto = false) => {
       // Save session
@@ -753,8 +762,8 @@ export default function App() {
   const openSettingsModal = () => setModalState({ isOpen: true, type: 'settings', data: null });
   const closeModal = () => setModalState({ ...modalState, isOpen: false });
   const startEdit = (recipe) => { setActiveRecipe(recipe); setView('edit'); };
-  const startCreate = () => { setActiveRecipe({ title: '', content: '', categories: [], chef: '' }); setView('create'); };
-  const viewRecipe = (recipe) => { setActiveRecipe(recipe); setView('view'); };
+  const startCreate = () => { scrollPosRef.current = window.scrollY; setActiveRecipe({ title: '', content: '', categories: [], chef: '' }); setView('create'); };
+  const viewRecipe = (recipe) => { scrollPosRef.current = window.scrollY; setActiveRecipe(recipe); setView('view'); };
   const goBack = () => { setView('list'); setActiveRecipe(null); };
 
   // --- Sorting & Filtering Logic ---
