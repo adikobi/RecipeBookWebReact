@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Plus, Search, ArrowRight, ArrowUp, ArrowDown, Edit2, Trash2, Save, ChefHat, X, Sparkles, CheckCircle2, Circle, ListChecks, AlertCircle, Lock, KeyRound, Settings, Download, Upload, FileText, Share, Mail, Tag, ShieldCheck, Database, RefreshCw, Cloud, CloudRain, User } from 'lucide-react';
+import { Plus, Search, ArrowRight, ArrowUp, ArrowDown, Edit2, Trash2, Save, ChefHat, X, Sparkles, CheckCircle2, Circle, ListChecks, AlertCircle, Lock, KeyRound, Settings, Download, Upload, FileText, Share, Mail, Tag, ShieldCheck, Database, RefreshCw, Cloud, CloudRain, User, LogOut } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc, getDoc, onSnapshot, query } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
@@ -172,19 +172,11 @@ const ConfirmationContent = ({ title, message, onConfirm, onClose }) => (
     </>
 );
 
-const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onFileRestore, onExportWord, onClose, isTestEnv, categories, onUpdateCategories }) => {
-    const fileInputRef = useRef(null);
+const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onExportWord, onLogout, onClose, isTestEnv, categories, onUpdateCategories }) => {
     const [verifyStep, setVerifyStep] = useState(0); 
     const [pendingAction, setPendingAction] = useState(null);
     const [newCatName, setNewCatName] = useState('');
     const [showCatManager, setShowCatManager] = useState(false);
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            onFileRestore(file);
-        }
-    };
 
     const startVerification = (actionType) => {
         setPendingAction(actionType);
@@ -301,6 +293,29 @@ const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onFileRe
                     </div>
                 </button>
                 <div className="h-px bg-white/10"></div>
+                
+                {/* File Actions (Moved Up) */}
+                <div>
+                    <h4 className="text-xs md:text-sm text-gray-400 mb-2 font-bold uppercase tracking-wider flex items-center gap-2"><FileText size={14} /> פעולות קבצים</h4>
+                    <button onClick={onExportWord} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right mb-2 group">
+                        <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:bg-blue-500/30 transition-colors"><FileText size={18} /></div>
+                        <div>
+                            <div className="text-white font-medium text-sm md:text-base">הורדה לקובץ Word</div>
+                            <div className="text-gray-500 text-xs">להדפסה נוחה</div>
+                        </div>
+                    </button>
+                    <button onClick={onFileBackup} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right group">
+                        <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg group-hover:bg-emerald-500/30 transition-colors"><Download size={18} /></div>
+                        <div>
+                            <div className="text-white font-medium text-sm md:text-base">שמירת גיבוי למכשיר</div>
+                            <div className="text-gray-500 text-xs">קובץ JSON</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div className="h-px bg-white/10"></div>
+                
+                {/* Cloud Actions (Moved Down) */}
                 <div>
                     <h4 className="text-xs md:text-sm text-gray-400 mb-2 font-bold uppercase tracking-wider flex items-center gap-2"><Cloud size={14} /> פעולות ענן (מפתחים)</h4>
                     <button onClick={() => startVerification('backup')} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right mb-2 group border border-white/5">
@@ -318,32 +333,17 @@ const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onFileRe
                         </div>
                     </button>
                 </div>
+                
                 <div className="h-px bg-white/10"></div>
-                <div>
-                    <h4 className="text-xs md:text-sm text-gray-400 mb-2 font-bold uppercase tracking-wider flex items-center gap-2"><FileText size={14} /> פעולות קבצים</h4>
-                    <button onClick={onExportWord} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right mb-2 group">
-                        <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:bg-blue-500/30 transition-colors"><FileText size={18} /></div>
-                        <div>
-                            <div className="text-white font-medium text-sm md:text-base">הורדה לקובץ Word</div>
-                            <div className="text-gray-500 text-xs">להדפסה נוחה</div>
-                        </div>
-                    </button>
-                    <button onClick={onFileBackup} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right mb-2 group">
-                        <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg group-hover:bg-emerald-500/30 transition-colors"><Download size={18} /></div>
-                        <div>
-                            <div className="text-white font-medium text-sm md:text-base">שמירת גיבוי למכשיר</div>
-                            <div className="text-gray-500 text-xs">קובץ JSON</div>
-                        </div>
-                    </button>
-                    <button onClick={() => fileInputRef.current.click()} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right group">
-                        <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg group-hover:bg-purple-500/30 transition-colors"><Upload size={18} /></div>
-                        <div>
-                            <div className="text-white font-medium text-sm md:text-base">טעינה מקובץ</div>
-                            <div className="text-gray-500 text-xs">שחזור מקומי</div>
-                        </div>
-                    </button>
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" />
-                </div>
+                
+                <button onClick={onLogout} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-red-500/10 rounded-xl transition-all text-right group border border-white/5 border-red-500/10 hover:border-red-500/30">
+                    <div className="p-2 bg-red-500/20 text-red-400 rounded-lg group-hover:bg-red-500/30 transition-colors"><LogOut size={18} /></div>
+                    <div>
+                        <div className="text-red-400 font-medium text-sm md:text-base">התנתקות</div>
+                        <div className="text-red-500/70 text-xs">יציאה מהחשבון</div>
+                    </div>
+                </button>
+
             </div>
             <button onClick={onClose} className="mt-2 w-full py-3 rounded-2xl text-gray-400 hover:bg-white/5 transition-colors">סגור</button>
         </div>
@@ -406,7 +406,7 @@ const ChecklistView = ({ content }) => {
         if (!line.trim()) return <div key={index} className="h-4 md:h-6" />;
         const isChecked = checkedState[index];
         return (
-          <div key={index} onClick={() => toggleLine(index)} className={`group flex items-start gap-4 p-4 rounded-2xl cursor-pointer border checkbox-transition select-none ${isChecked ? 'bg-[#151515] border-white/5 opacity-60' : 'bg-[#1a1a1a] border-white/10 hover:border-rose-500/30 hover:bg-[#202020] shadow-sm'}`}>
+          <div key={index} onClick={() => toggleLine(index)} className={`group flex flex-row-reverse items-start gap-4 p-4 rounded-2xl cursor-pointer border checkbox-transition select-none ${isChecked ? 'bg-[#151515] border-white/5 opacity-60' : 'bg-[#1a1a1a] border-white/10 hover:border-rose-500/30 hover:bg-[#202020] shadow-sm'}`}>
             <div className={`mt-1 checkbox-transition ${isChecked ? 'text-emerald-500' : 'text-gray-500 group-hover:text-rose-400'}`}>{isChecked ? <CheckCircle2 size={24} weight="fill" /> : <Circle size={24} />}</div>
             <div className={`text-base md:text-lg leading-relaxed flex-1 checkbox-transition font-medium ${isChecked ? 'line-through text-gray-600 decoration-emerald-500/50' : 'text-gray-100'}`}><TextWithLinks text={line} /></div>
           </div>
@@ -486,6 +486,15 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [allCategories, setAllCategories] = useState([...DEFAULT_CATEGORIES]);
 
+  // --- Auto-Login Check ---
+  useEffect(() => {
+    const savedDbId = localStorage.getItem('recipe_db_id');
+    const savedMode = localStorage.getItem('recipe_env_mode');
+    if (savedDbId && savedMode) {
+        handleLogin(savedDbId, savedMode, true);
+    }
+  }, []);
+
   // --- Helpers for DB Persistence ---
   const saveCategoriesToDb = async (newCats) => {
     if (!db || !dbId) return;
@@ -544,9 +553,26 @@ export default function App() {
       return () => unsubscribe();
   }, [isAuthenticated, dbId]);
 
-  const handleLogin = (id, mode) => {
+  const handleLogin = (id, mode, isAuto = false) => {
+      // Save session
+      localStorage.setItem('recipe_db_id', id);
+      localStorage.setItem('recipe_env_mode', mode);
+      
       setDbId(id); setEnvMode(mode); setIsAuthenticated(true);
-      showToast(mode === 'test' ? 'נכנס למצב בדיקה 🧪' : 'ברוכים הבאים למשפחה! 👨‍🍳', 'success');
+      if (!isAuto) {
+         showToast(mode === 'test' ? 'נכנס למצב בדיקה 🧪' : 'ברוכים הבאים למשפחה! 👨‍🍳', 'success');
+      }
+  };
+
+  const handleLogout = () => {
+      localStorage.removeItem('recipe_db_id');
+      localStorage.removeItem('recipe_env_mode');
+      setIsAuthenticated(false);
+      setDbId(null);
+      setEnvMode('');
+      setRecipes([]);
+      setModalState(prev => ({...prev, isOpen: false}));
+      showToast('התנתקת בהצלחה 👋', 'info');
   };
 
   const showToast = (message, type = 'success') => {
@@ -903,7 +929,7 @@ export default function App() {
       )}
       <Modal isOpen={modalState.isOpen} onClose={closeModal}>
           {modalState.type === 'delete' && <ConfirmationContent title="מחיקת מתכון" message="בטוח שרוצים למחוק? אי אפשר להתחרט אחר כך..." onConfirm={confirmDelete} onClose={closeModal} />}
-          {modalState.type === 'settings' && <SettingsContent onCloudBackup={handleCloudBackup} onCloudRestore={handleCloudRestore} onFileBackup={handleFileBackup} onFileRestore={handleFileRestore} onExportWord={handleExportWord} onClose={closeModal} isTestEnv={envMode === 'test'} categories={allCategories} onUpdateCategories={handleUpdateCategories} />}
+          {modalState.type === 'settings' && <SettingsContent onCloudBackup={handleCloudBackup} onCloudRestore={handleCloudRestore} onFileBackup={handleFileBackup} onFileRestore={handleFileRestore} onExportWord={handleExportWord} onLogout={handleLogout} onClose={closeModal} isTestEnv={envMode === 'test'} categories={allCategories} onUpdateCategories={handleUpdateCategories} />}
       </Modal>
       <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(prev => ({...prev, show: false}))} />
     </div>
