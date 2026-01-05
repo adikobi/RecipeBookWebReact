@@ -353,12 +353,18 @@ const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onExport
 const LoginScreen = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const pass = password.trim();
     if (pass === 'קובי') onLogin(PROD_DB_ID, 'prod');
     else if (pass === 'טסט') onLogin(TEST_DB_ID, 'test');
-    else { setError(true); setTimeout(() => setError(false), 500); }
+    else { 
+        setError(true); 
+        setAttempts(prev => prev + 1);
+        setTimeout(() => setError(false), 500); 
+    }
   };
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6">
@@ -376,6 +382,16 @@ const LoginScreen = ({ onLogin }) => {
             <button type="submit" className="w-full gradient-bg text-white font-bold py-5 rounded-2xl shadow-xl shadow-rose-900/20 transition-all active:scale-[0.98] hover:brightness-110 text-lg">כניסה</button>
           </form>
           {error && <p className="text-red-400 mt-4 text-sm animate-in fade-in">סיסמה שגויה, נסו שוב</p>}
+          
+          {attempts >= 3 && (
+            <div className="mt-6 p-4 bg-white/5 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-bottom-2">
+                <div className="text-rose-400 font-bold mb-2 flex items-center justify-center gap-2 text-sm"><Sparkles size={14}/> רמז לכניסה</div>
+                <div className="text-gray-400 text-sm space-y-1">
+                    <p>לכניסה לסביבת הטסט הזן <strong>"טסט"</strong></p>
+                    <p>לכניסה לחשבון המשפחתי הזן את <strong>שם המשפחה</strong></p>
+                </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
