@@ -17,7 +17,7 @@ const FIREBASE_CONFIG = {
 
 // --- Database Constants ---
 const TEST_DB_ID = "giyGyr4ALAPNLvLybbEOPXyHDMv2";
-const PROD_DB_ID = "YOUR_REAL_DB_ID_HERE"; 
+const PROD_DB_ID = "FgETS4BeELaIGQ3QziwnDCqDQUx2"; 
 
 const DEFAULT_CATEGORIES = ['עיקריות', 'חלבי', 'תוספות', 'סלטים', 'מאפים', 'קינוחים', 'ארוחת בוקר', 'משקאות', 'שונות'];
 const DEFAULT_CATEGORY = 'שונות'; 
@@ -935,3 +935,4 @@ export default function App() {
     </div>
   );
 }
+
