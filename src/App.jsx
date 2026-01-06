@@ -107,7 +107,7 @@ const normalizeCategories = (recipe) => {
 const FONT_SIZES = {
     normal: { label: 'רגיל', sizeClass: 'text-base md:text-xl' },
     large: { label: 'גדול', sizeClass: 'text-lg md:text-2xl' },
-    xl: { label: 'ענק', sizeClass: 'text-xl md:text-3xl' }
+    xl: { label: 'ענק', sizeClass: 'text-3xl md:text-5xl' } // Updated to be significantly larger
 };
 
 // --- Components ---
