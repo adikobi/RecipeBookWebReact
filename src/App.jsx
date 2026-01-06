@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
-import { Plus, Search, ArrowRight, ArrowUp, ArrowDown, Edit2, Trash2, Save, ChefHat, X, Sparkles, CheckCircle2, Circle, ListChecks, AlertCircle, Lock, KeyRound, Settings, Download, Upload, FileText, Share, Mail, Tag, ShieldCheck, Database, RefreshCw, Cloud, CloudRain, User, LogOut } from 'lucide-react';
+import { Plus, Search, ArrowRight, ArrowUp, ArrowDown, Edit2, Trash2, Save, ChefHat, X, Sparkles, CheckCircle2, Circle, ListChecks, AlertCircle, Lock, KeyRound, Settings, Download, Upload, FileText, Share, Mail, Tag, ShieldCheck, Database, RefreshCw, Cloud, CloudRain, User, LogOut, Type } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc, getDoc, onSnapshot, query } from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
@@ -103,6 +103,13 @@ const normalizeCategories = (recipe) => {
     return [DEFAULT_CATEGORY];
 };
 
+// --- Font Size Logic ---
+const FONT_SIZES = {
+    normal: { label: 'רגיל', sizeClass: 'text-base md:text-xl' },
+    large: { label: 'גדול', sizeClass: 'text-lg md:text-2xl' },
+    xl: { label: 'ענק', sizeClass: 'text-xl md:text-3xl' }
+};
+
 // --- Components ---
 
 const SplashScreen = ({ onFinish }) => {
@@ -172,7 +179,7 @@ const ConfirmationContent = ({ title, message, onConfirm, onClose }) => (
     </>
 );
 
-const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onExportWord, onLogout, onClose, isTestEnv, categories, onUpdateCategories }) => {
+const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onExportWord, onLogout, onClose, isTestEnv, categories, onUpdateCategories, fontSize, onUpdateFontSize }) => {
     const [verifyStep, setVerifyStep] = useState(0); 
     const [pendingAction, setPendingAction] = useState(null);
     const [newCatName, setNewCatName] = useState('');
@@ -285,6 +292,25 @@ const SettingsContent = ({ onCloudBackup, onCloudRestore, onFileBackup, onExport
                 </div>
             )}
             <div className="bg-white/5 p-3 md:p-4 rounded-2xl border border-white/5 space-y-3 md:space-y-4">
+                
+                {/* Font Size Selection */}
+                <div>
+                     <h4 className="text-xs md:text-sm text-gray-400 mb-2 font-bold uppercase tracking-wider flex items-center gap-2"><Type size={14} /> גודל טקסט</h4>
+                     <div className="flex bg-black/20 p-1 rounded-xl border border-white/5">
+                        {Object.entries(FONT_SIZES).map(([key, config]) => (
+                            <button
+                                key={key}
+                                onClick={() => onUpdateFontSize(key)}
+                                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${fontSize === key ? 'bg-white/10 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                            >
+                                {config.label}
+                            </button>
+                        ))}
+                     </div>
+                </div>
+
+                <div className="h-px bg-white/10"></div>
+
                 <button onClick={() => setShowCatManager(true)} className="w-full flex items-center gap-3 md:gap-4 p-2 md:p-3 hover:bg-white/5 rounded-xl transition-all text-right group border border-white/5">
                     <div className="p-2 bg-yellow-500/20 text-yellow-400 rounded-lg group-hover:bg-yellow-500/30 transition-colors"><Tag size={18} /></div>
                     <div>
@@ -412,7 +438,7 @@ const TextWithLinks = ({ text }) => {
   );
 };
 
-const ChecklistView = ({ content }) => {
+const ChecklistView = ({ content, fontSizeClass }) => {
   const [checkedState, setCheckedState] = useState({});
   const lines = useMemo(() => content.split('\n'), [content]);
   const toggleLine = (index) => setCheckedState(prev => ({ ...prev, [index]: !prev[index] }));
@@ -424,7 +450,7 @@ const ChecklistView = ({ content }) => {
         return (
           <div key={index} onClick={() => toggleLine(index)} className={`group flex flex-row-reverse items-start gap-4 p-4 rounded-2xl cursor-pointer border checkbox-transition select-none ${isChecked ? 'bg-[#151515] border-white/5 opacity-60' : 'bg-[#1a1a1a] border-white/10 hover:border-rose-500/30 hover:bg-[#202020] shadow-sm'}`}>
             <div className={`mt-1 checkbox-transition ${isChecked ? 'text-emerald-500' : 'text-gray-500 group-hover:text-rose-400'}`}>{isChecked ? <CheckCircle2 size={24} weight="fill" /> : <Circle size={24} />}</div>
-            <div className={`text-base md:text-lg leading-relaxed flex-1 checkbox-transition font-medium ${isChecked ? 'line-through text-gray-600 decoration-emerald-500/50' : 'text-gray-100'}`}><TextWithLinks text={line} /></div>
+            <div className={`${fontSizeClass} leading-relaxed flex-1 min-w-0 break-words checkbox-transition font-medium ${isChecked ? 'line-through text-gray-600 decoration-emerald-500/50' : 'text-gray-100'}`}><TextWithLinks text={line} /></div>
           </div>
         );
       })}
@@ -501,16 +527,28 @@ export default function App() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
   const [loading, setLoading] = useState(false);
   const [allCategories, setAllCategories] = useState([...DEFAULT_CATEGORIES]);
+  const [fontSize, setFontSize] = useState('normal'); 
   const scrollPosRef = useRef(0);
 
-  // --- Auto-Login Check ---
+  // --- Auto-Login Check & Settings Load ---
   useEffect(() => {
     const savedDbId = localStorage.getItem('recipe_db_id');
     const savedMode = localStorage.getItem('recipe_env_mode');
     if (savedDbId && savedMode) {
         handleLogin(savedDbId, savedMode, true);
     }
+    
+    // Load local settings (Font Size)
+    const savedFontSize = localStorage.getItem('recipe_app_font_size');
+    if (savedFontSize && FONT_SIZES[savedFontSize]) {
+        setFontSize(savedFontSize);
+    }
   }, []);
+
+  const handleUpdateFontSize = (newSize) => {
+      setFontSize(newSize);
+      localStorage.setItem('recipe_app_font_size', newSize);
+  };
 
   // --- Helpers for DB Persistence ---
   const saveCategoriesToDb = async (newCats) => {
@@ -768,16 +806,32 @@ export default function App() {
 
   // --- Sorting & Filtering Logic ---
   const filteredRecipes = useMemo(() => {
-    return recipes
-      .filter(r => {
+    // First pass: Filter
+    const filtered = recipes.filter(r => {
         const matchesSearch = (r.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
                               (r.content || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                               (r.chef || '').toLowerCase().includes(searchQuery.toLowerCase());
         if (selectedCategory === 'הכל') return matchesSearch;
         const rCats = normalizeCategories(r);
         return matchesSearch && rCats.includes(selectedCategory);
-      })
-      .sort((a, b) => (a.title || '').localeCompare(b.title || '', 'he'));
+    });
+
+    // Second pass: Sort
+    return filtered.sort((a, b) => {
+        // Priority 1: Search term in TITLE (if search is active)
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            const aInTitle = (a.title || '').toLowerCase().includes(query);
+            const bInTitle = (b.title || '').toLowerCase().includes(query);
+
+            if (aInTitle && !bInTitle) return -1; // a comes first
+            if (!aInTitle && bInTitle) return 1;  // b comes first
+        }
+        
+        // Priority 2: Alphabetical
+        return (a.title || '').localeCompare(b.title || '', 'he');
+    });
+
   }, [recipes, searchQuery, selectedCategory]);
 
   const renderHeader = () => (
@@ -876,8 +930,10 @@ export default function App() {
     );
   };
 
-  const RecipeDetail = ({ recipe }) => {
+  const RecipeDetail = ({ recipe, fontSize }) => {
     const [isChecklistMode, setIsChecklistMode] = useState(false);
+    const sizeClass = FONT_SIZES[fontSize]?.sizeClass || FONT_SIZES.normal.sizeClass;
+
     return (
       <div className="max-w-3xl mx-auto p-3 md:p-4 animate-in fade-in zoom-in-95 duration-500 pb-24">
         <div className="fixed top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-rose-500/20 rounded-full blur-[100px] pointer-events-none z-0"></div>
@@ -899,8 +955,15 @@ export default function App() {
                 <button onClick={() => setIsChecklistMode(!isChecklistMode)} className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${isChecklistMode ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent'}`}><ListChecks size={20} />{isChecklistMode ? 'מצב קריאה' : 'מצב צ\'ק-ליסט'}</button>
             </div>
           </div>
-          {/* Made font slightly bolder (font-medium) */}
-          <div className="text-gray-100">{isChecklistMode ? <ChecklistView content={recipe.content} /> : <div className="whitespace-pre-wrap text-base md:text-xl leading-relaxed font-medium tracking-wide break-words"><TextWithLinks text={recipe.content} /></div>}</div>
+          {/* Apply Font Size Class */}
+          <div className="text-gray-100">
+              {isChecklistMode ? 
+                <ChecklistView content={recipe.content} fontSizeClass={sizeClass} /> : 
+                <div className={`whitespace-pre-wrap leading-relaxed font-medium tracking-wide break-words ${sizeClass}`}>
+                    <TextWithLinks text={recipe.content} />
+                </div>
+              }
+          </div>
         </div>
       </div>
     );
@@ -948,7 +1011,7 @@ export default function App() {
       {renderHeader()}
       <main className="relative z-0">
         {view === 'list' && <RecipeList />}
-        {view === 'view' && <RecipeDetail recipe={activeRecipe} />}
+        {view === 'view' && <RecipeDetail recipe={activeRecipe} fontSize={fontSize} />}
         {(view === 'edit' || view === 'create') && <RecipeForm initialData={activeRecipe} onSave={handleSave} allCategories={allCategories} onAddCategory={handleAddCategory} />}
       </main>
       {view === 'list' && (
@@ -956,7 +1019,7 @@ export default function App() {
       )}
       <Modal isOpen={modalState.isOpen} onClose={closeModal}>
           {modalState.type === 'delete' && <ConfirmationContent title="מחיקת מתכון" message="בטוח שרוצים למחוק? אי אפשר להתחרט אחר כך..." onConfirm={confirmDelete} onClose={closeModal} />}
-          {modalState.type === 'settings' && <SettingsContent onCloudBackup={handleCloudBackup} onCloudRestore={handleCloudRestore} onFileBackup={handleFileBackup} onFileRestore={handleFileRestore} onExportWord={handleExportWord} onLogout={handleLogout} onClose={closeModal} isTestEnv={envMode === 'test'} categories={allCategories} onUpdateCategories={handleUpdateCategories} />}
+          {modalState.type === 'settings' && <SettingsContent onCloudBackup={handleCloudBackup} onCloudRestore={handleCloudRestore} onFileBackup={handleFileBackup} onFileRestore={handleFileRestore} onExportWord={handleExportWord} onLogout={handleLogout} onClose={closeModal} isTestEnv={envMode === 'test'} categories={allCategories} onUpdateCategories={handleUpdateCategories} fontSize={fontSize} onUpdateFontSize={handleUpdateFontSize} />}
       </Modal>
       <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(prev => ({...prev, show: false}))} />
     </div>
