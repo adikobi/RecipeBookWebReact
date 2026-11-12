@@ -32,13 +32,13 @@ try {
 // --- Design system: one ground, one ink, one accent, light + dark ---
 const GlobalStyles = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap');
     :root{--bg:#f4eee2;--s1:#fbf8f1;--s2:#ebe3d3;--ink:#1f1a14;--mute:#6a6154;--acc:#b8400d;--acc-ink:#fff;--bad:#b42318;--line:rgba(31,26,20,.12);color-scheme:light}
     @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15110d;--s1:#1e1914;--s2:#2a231c;--ink:#f3ebdd;--mute:#a59b8b;--acc:#f0773a;--acc-ink:#1a0e05;--bad:#f0746b;--line:rgba(243,235,221,.12);color-scheme:dark}}
     :root[data-theme="dark"]{--bg:#15110d;--s1:#1e1914;--s2:#2a231c;--ink:#f3ebdd;--mute:#a59b8b;--acc:#f0773a;--acc-ink:#1a0e05;--bad:#f0746b;--line:rgba(243,235,221,.12);color-scheme:dark}
     *{-webkit-tap-highlight-color:transparent}
     body{margin:0;font-family:'Heebo',system-ui,sans-serif;background:var(--bg);color:var(--ink);overscroll-behavior-y:none;overflow-x:hidden}
-    .serif{font-family:'Frank Ruhl Libre',serif}
+    .serif{font-family:'Heebo',system-ui,sans-serif}
     .app{min-height:100vh;background:var(--bg);color:var(--ink)}
     .wrap{max-width:64rem;margin:0 auto;padding:0 16px}
     .hd{position:sticky;top:0;z-index:30;background:var(--bg);padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid var(--line)}
@@ -66,7 +66,7 @@ const GlobalStyles = () => (
     .row small{display:block;color:var(--mute);font-weight:400;font-size:13px}
     .row svg{color:var(--mute);flex-shrink:0}
     .sec{font-size:12px;font-weight:700;color:var(--mute);letter-spacing:.06em;margin:22px 0 4px}
-    .letter{font:700 22px 'Frank Ruhl Libre',serif;color:var(--acc);margin:28px 0 10px}
+    .letter{font:700 22px 'Heebo',sans-serif;color:var(--acc);margin:28px 0 10px}
     mark{background:transparent;color:var(--acc);font-weight:900}
     .scrim{position:fixed;inset:0;z-index:60;background:rgba(10,8,5,.6);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
     .sheet{background:var(--bg);width:100%;max-width:28rem;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s cubic-bezier(.2,.8,.2,1);scrollbar-width:none}
@@ -89,7 +89,6 @@ const GlobalStyles = () => (
     @media print{.hd,.fab,.noprint,.toast{display:none!important}body,.app{background:#fff!important;color:#000!important}.pr{border:0!important;box-shadow:none!important}}
   `}</style>
 );
-
 // --- Helpers ---
 const normalizeCategories = (r) => (Array.isArray(r.categories) && r.categories.length ? r.categories : r.category ? [r.category] : [DEFAULT_CATEGORY]);
 const FONT_SIZES = {
